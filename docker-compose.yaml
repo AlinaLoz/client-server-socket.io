@@ -1,0 +1,31 @@
+version: '3.4'
+services:   
+  server:
+    build:  
+      ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/src/app/server
+    depends_on:
+      - db
+    command: npm start
+  db:
+    image: mysql:5.5
+    environment:
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_ROOT_PASSWORD: 651003
+      MYSQL_DATABASE: task_manager
+      MYSQL_USER: lozita
+      MYSQL_PASSWORD: 651003
+    ports:
+     - "3307:3306"
+  client:
+    build:
+      ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/src/app/client/src
+      - ./frontend/public:/src/app/client/public
+    command: npm run start
