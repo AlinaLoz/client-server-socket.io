@@ -1,24 +1,37 @@
 import React, {Component} from 'react';
 import {connect} from "react-redux";
 import {Button, Grid, Header, Icon, Image, List, Message} from "semantic-ui-react";
-import {dropMessage, dropTeam, getTeams} from "../redux/teams/actions";
+import {
+  dropMessage,
+  dropTeam,
+  emitDropTeam,
+  emitTeams,
+  getTeams,
+  subscribeDropTeam,
+  subscribeTeams
+} from "../redux/teams/actions";
 
 class ListTeams extends Component{
-    componentWillMount() {
-        const {ongetTeams} = this.props;
-        ongetTeams();
-    }
+  componentWillMount() {
+      const {onSubscribeTeams} = this.props;
+      onSubscribeTeams();
+  }
 
-    componentWillReceiveProps(nextProps, nextContext) {
+  componentDidMount() {
+    const {onEmitTeams, onSubscribeDropTeam} = this.props;
+    onEmitTeams();
+    onSubscribeDropTeam();
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
         const {message} = nextProps;
         if (message !== this.props.message) {
-
         }
     }
 
     render(){
         const {teams,message} = this.props;
-        const {ondropTeam, ondropMessage} = this.props;
+        const {onEmitDropTeam, ondropMessage} = this.props;
 
         return (
             <Grid>
@@ -34,7 +47,7 @@ class ListTeams extends Component{
                         </List.Content>
                         <List.Content className={`content-button`}>
                             <Button className={`button-show-team`} onClick={() => this.props.history.push(`/team/${team.id}`)}>Показать</Button>
-                            <Button className={`button-drop-team`} onClick={() => ondropTeam(team.id)}>
+                            <Button className={`button-drop-team`} onClick={() => onEmitDropTeam(team.id)}>
                                 <Icon name="close"/>
                             </Button>
                         </List.Content>
@@ -53,8 +66,10 @@ export default connect(
         message: state.teams.messageOfDrop
     }),
     dispatch => ({
-        ongetTeams: () => dispatch(getTeams()),
-        ondropTeam: (id) => dispatch(dropTeam(id)),
+        onSubscribeTeams: () => dispatch(subscribeTeams()),
+        onEmitTeams: () => dispatch(emitTeams()),
+        onSubscribeDropTeam: () => dispatch(subscribeDropTeam()),
+        onEmitDropTeam: (id) => dispatch(emitDropTeam(id)),
         ondropMessage: () => dispatch(dropMessage())
     })
 )(ListTeams);

@@ -1,19 +1,23 @@
 import {ACTIONS} from "../constans";
-import {Xhr} from "../../helpers/Xhr";
+import {emit, on} from "../../helpers/SocketAPI";
 
-export const fetchRegister = (login, password, confirmPassword) => dispatch => {
-	dispatch({type: ACTIONS.USER.REGISTER.RQ});
+export const subscribeRegister = () => dispatch => {
+	on('register', (data) => {
+		if (data.error) {
+			return dispatch({
+				type: ACTIONS.USER.REGISTER.FL,
+				data: data.error
+			});
+		}
 
-	Xhr.register(login, password,confirmPassword).then(resp => {
-		//if (!resp.data.auth) {throw new Error('not auth')}
 		dispatch({
 			type: ACTIONS.USER.REGISTER.SC,
-			data: resp
-		})
-	}).catch(err => {
-		dispatch({
-			type: ACTIONS.USER.REGISTER.FL,
-			data: err.data
-		})
-	});
+			data
+		});
+	})
+};
+
+export const emitRegister = (login, password, confirmPassword) => dispatch => {
+	dispatch({type: ACTIONS.USER.REGISTER.RQ});
+	emit('register', {login, password, confirmPassword});
 };

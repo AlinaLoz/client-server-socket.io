@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from "react-redux";
 import {Button, Input, Grid, Message, Icon} from "semantic-ui-react";
-import {fetchRegister} from "../redux/register/actions";
+import {emitRegister, onRegister, subscribeRegister} from "../redux/register/actions";
 
 class Register extends Component {
 	state = {
@@ -16,11 +16,16 @@ class Register extends Component {
 		});
 	};
 
+	componentDidMount() {
+		const {onSubscribeRegister} = this.props;
+		onSubscribeRegister();
+	}
+
 	register = (e) => {
 		e.preventDefault();
 		const {login, password, confirmPassword} = this.state;
-		const {onfetchRegister} = this.props;
-		onfetchRegister(login, password, confirmPassword);
+		const {onEmitRegister} = this.props;
+		onEmitRegister(login, password, confirmPassword);
 	};
 
 	componentWillReceiveProps(nextProps) {
@@ -63,9 +68,10 @@ class Register extends Component {
 
 export default connect(
 	state => ({
-		message: state.register.message || {}
+		message: state.register.message || {},
 	}),
 	dispatch => ({
-		onfetchRegister: (login, password, confirmPassword) => dispatch(fetchRegister(login, password, confirmPassword))
+		onEmitRegister: (login, password, confirmPassword) => dispatch(emitRegister(login, password, confirmPassword)),
+		onSubscribeRegister  : () => dispatch(subscribeRegister())
 	})
 )(Register);

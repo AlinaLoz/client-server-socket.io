@@ -1,7 +1,11 @@
 import React, {Component} from 'react';
 import {connect} from "react-redux";
 import {Button, Checkbox, Form, Grid, Header, Icon, Input, Label, List, Loader, Message} from "semantic-ui-react";
-import {checkExistUser, createTeam, dropMessage} from "../redux/teams/actions";
+import {
+    dropMessage, emitCheckUser,
+    emitCreateTeam, subscribeCheckUser,
+    subscribeCreateTeam,
+} from "../redux/teams/actions";
 
 class TeamChangeComponent extends Component {
     state = {
@@ -10,6 +14,12 @@ class TeamChangeComponent extends Component {
         name: "",
         members: []
     };
+
+    componentDidMount() {
+        const {onSubscribeCreateTeam, onSubscribeCheckUser} = this.props;
+        onSubscribeCreateTeam();
+        onSubscribeCheckUser();
+    }
 
     componentWillReceiveProps(nextProps, nextContext) {
         const {userTest} = nextProps;
@@ -32,17 +42,17 @@ class TeamChangeComponent extends Component {
     };
 
     saveTeam = () => {
-        const {onCreateTeam} = this.props;
+        const {onEmitCreateTeam} = this.props;
         const {name, members} = this.state;
 
         const sortmembers = members.filter(member => member.checked).map(member => member.id);
-        onCreateTeam(name, sortmembers)
+        onEmitCreateTeam(name, sortmembers)
     };
 
     render() {
         const {addUser, sendCheckUser, members} = this.state;
         const {userTest, fetchingUserTest, message, fetchCreateTeam} = this.props;
-        const {oncheckUser, ondropMessage} = this.props;
+        const {onEmitCheckUser, ondropMessage} = this.props;
 
         return (
             <Grid className={"grid-change-team"}>
@@ -62,7 +72,10 @@ class TeamChangeComponent extends Component {
                         <input type="text" onChange={(e) => this.setState({addUser: e.target.value})} />
                         <div>
                             {addUser !== sendCheckUser ?
-                                <Icon name="question" onClick={() => {this.setState({sendCheckUser: addUser}); oncheckUser(addUser);}}/>
+                                <Icon name="question" onClick={() => {
+                                    this.setState({sendCheckUser: addUser});
+                                    onEmitCheckUser(addUser);
+                                }}/>
                                 :
                                 <React.Fragment>
                                     {userTest != null && userTest !== false && <Icon name="check" />}
@@ -95,8 +108,10 @@ export const TeamCreate = connect(
         fetchCreateTeam : state.teams.fetchCreateTeam,
     }),
     dispatch => ({
-        oncheckUser  : (login) => dispatch(checkExistUser(login)),
-        onCreateTeam : (name, users) => dispatch(createTeam(name, users)),
+        onSubscribeCheckUser: () => dispatch(subscribeCheckUser()),
+        onEmitCheckUser: (login) => dispatch(emitCheckUser(login)),
+        onSubscribeCreateTeam: () => dispatch(subscribeCreateTeam()),
+        onEmitCreateTeam: (name, users) => dispatch(emitCreateTeam(name, users)),
         ondropMessage: () => dispatch(dropMessage())
     })
 )(TeamChangeComponent);

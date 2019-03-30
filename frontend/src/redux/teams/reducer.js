@@ -27,7 +27,7 @@ export default function teams(state = initState, action) {
             const teams = state.teams.filter(team => team.id != id);
             return {...state, teams, messageOfDrop: {positive: true, info: message}};
         case ACTIONS.TEAM.DROP.FL:
-            return {...state, messageOfDrop: {positive: false, info: action.data.message}};
+            return {...state, messageOfDrop: {positive: false, info: action.data}};
 
         case ACTIONS.TEAM.MESSAGE:
             return {...state, messageOfDrop: {}, messageOfCreate: {}};
@@ -37,19 +37,17 @@ export default function teams(state = initState, action) {
         case ACTIONS.TEAM.CREATE.SC:
             return {...state, fetchCreateTeam: false, messageOfCreate: {positive: true, info: action.data.message}};
         case ACTIONS.TEAM.CREATE.FL:
-            return {...state, fetchCreateTeam: false, messageOfCreate: {positive: false, info: "bad request"}};
-
+            return {...state, fetchCreateTeam: false, messageOfCreate: {positive: false, info: action.data}};
         case ACTIONS.ONE_TEAM.GET.SC:{
-            const {id, data} = action;
+            const {data} = action;
             const {infoTeams} = state;
-            return {...state, infoTeams: {...infoTeams, [id]: data}};
+            return {...state, infoTeams: {...infoTeams, [data.id]: data}};
         }
-
         case ACTIONS.ONE_TEAM.UPDATE_NAME.SC:{
             return {...state, messageOfCreate: {positive: true, info: action.data.message}};
         }
         case ACTIONS.ONE_TEAM.UPDATE_NAME.FL:{
-            return {...state, messageOfCreate: {positive: false, info: "bad request"}};
+            return {...state, messageOfCreate: {positive: false, info: action.data}};
         }
         default:
             return state;

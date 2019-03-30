@@ -1,21 +1,23 @@
 const {ConfirmPasswordError, InteractionDBError, UserExistError} = require("../models/mysql/user");
 const {User} = require('../lib/sequelize');
 
-exports.post = function(req, resp) {
-    const {login, password, confirmPassword} = req.body;
+exports.register = function(io, data, action) {
+    const {login, password, confirmPassword} = data;
+
+    console.log(io.id);
 
     User.register(login, password, confirmPassword)
-        .then(_ => resp.send(200, {message: "ok"}))
+        .then(_ => io.emit(action, {message: "ok"}))
         .catch(err => {
             if (err instanceof UserExistError) {
-                resp.status(400).send({data: {status: "error", message: err.message}});
+                io.emit(action, {error: err.message});
             }
             if (err instanceof ConfirmPasswordError) {
-                resp.status(400).send({data: {status: "error", message: err.message}});
+                io.emit(action, {error: err.message});
             }
 
             if (err instanceof InteractionDBError) {
-                resp.status(500).send({data: {status: "error", message: err.message}});
+                io.emit(action, {error: err.message});
             }
         });
 };

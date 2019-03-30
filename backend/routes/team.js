@@ -1,88 +1,86 @@
 const {User, Team} = require('../lib/sequelize');
 
-exports.get = function(req, resp) {
-    User.findByPk(parseInt(req.id))
-        .then(user => {
-            user.getTeams().then(teams => resp.status(200).send(teams.map(team => ({
-                id: team.id,
-                name: team.name
-            }))));
-        })
-        .catch(err => {
-            console.log(err);
-            resp.status(401).end();
-        });
+exports.getAllTeam = (io, data, action) => {
+  const {id} = data;
+  User.findByPk(parseInt(id))
+      .then(user => {
+          user.getTeams().then(teams => io.emit(action, teams.map(team => ({
+              id: team.id,
+              name: team.name
+          }))));
+      })
+      .catch(err => {
+          console.log(err);
+          io.emit(action, {error: 'странная ошибочка сервера, хз что это за ошибка должна быть'});
+      });
 };
 
-exports.getById = function(req, resp) {
-    console.log(parseInt(req.params.id));
-    Team.findByPk(parseInt(req.params.id))
+exports.getById = (io, data, action) => {
+  const {idTeam, id} = data;
+
+    Team.findByPk(parseInt(idTeam))
         .then( team => {
             User.findAll({
                 include: [{
                     model: Team,
-                    where: { id: req.params.id }
+                    where: { id: parseInt(id) }
                 }]
             }).then(users => {
                 const filterUsers = users.map(user => {return {id: user.id, login: user.login}});
-                resp.send(200, {team: {name: team.name, id: team.id, users: filterUsers}});
+                io.emit(action, {team: {name: team.name, id: team.id, users: filterUsers}});
             });
         })
         .catch(err => {
-            console.log(err);
-            resp.status(500).end();
+            io.emit(action, {errors: 'error is 500'});
         });
 };
 
+exports.teamAdd = (io, data, action) =>  {
+    const {name, users, id} = data;
 
-exports.teamAdd = function(req, resp) {
-    const {name, users} = req.body;
-
-    User.findByPk(parseInt(req.id))
+    User.findByPk(parseInt(id))
         .then(user => {
             Team.findOne({where: {name}})
                 .then(item => {
-                    if (item) return resp.status(400).send({message: "this team exist"});
+                    if (item) return io.emit(action, {errors: "this team exist"});
                     Team.create({name})
                         .then(team => {
                             users.forEach(id => User.findByPk(id).then(user => user.addTeam(team)));
-                            user.addTeam(team).then(user => resp.status(201).send({message: "team is created"}))
+                            user.addTeam(team).then(user => io.emit(action, {message: "team is created"}))
                         })
-                        .catch(err => resp.status(500).end({messages: err}));
+                        .catch(err => io.emit(action, {errors: err}));
                 })
-                .catch(err => resp.status(500).end({messages: err}));
+                .catch(err => io.emit(action, {errors: err}));
         })
         .catch(err => {
             console.log(err);
-            return resp.status(401).end();
+            return io.emit(action, {errors: 'что-то пошло не так как надо'});
         });
 };
 
-exports.delete = function(req, resp) {
-    const {id} = req.body;
+exports.delete = (io, data, action) => {
+    const {idTeam, id} = data;
 
-    User.findByPk(parseInt(req.id))
+    User.findByPk(parseInt(id))
         .then(user => {
-            Team.findByPk(id)
+            Team.findByPk(parseInt(idTeam))
                 .then(team => {
-                    if (!team) resp.status(400).send({message: "this team is not exist"});
-                    team.destroy().then(_ =>  resp.status(200).send({id, message: "team has been droped"}));
+                    if (!team) io.emit(action, {message: "this team is not exist"});
+                    team.destroy().then(_ =>  io.emit(action, {id: idTeam, message: "team has been droped"}));
                 })
-                .catch(_ => resp.status(500).end());
+                .catch(_ => io.emit(action, {errors: 'errors is 500'}));
         })
         .catch(err => {
-            console.log(err);
-            return resp.status(401).end();
+            return io.emit(action, {errors: err});
         });
 };
 
-exports.put = function(req, resp) {
-    //переделать чтоб айди был в строке запроса
-    const {id, name} = req.body;
-    Team.findByPk(parseInt(id))
-        .then(team => {
-            if (!team) resp.status(400).send({message: "this team is not exist"});
-            team.update({name: name}).then(_ =>  resp.send(200, {message: "изменения сохранены"}));
-        })
-        .catch(_ => resp.send(500));
-    };
+exports.put = (io, data, action) => {
+  const {idTeam, name} = data;
+  Team.findByPk(parseInt(idTeam))
+    .then(team => {
+        if (!team) io.emit(action, {errors: "this team is not exist"});
+        team.update({name: name}).then(_ =>  io.emit(action, {message: "изменения сохранены"}));
+    })
+    .catch(_ => io.emit(action, {errors: "error is 500"}));
+};

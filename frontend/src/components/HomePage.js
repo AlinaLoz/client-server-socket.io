@@ -9,15 +9,21 @@ import Team from "./TeamChange";
 import ListTeams from "./ListTeams";
 import ListBoards from "./ListBoards";
 import Board from "./Board";
-import {fetchAuth} from "../redux/auth/actions";
+import {emitAuth, subscribeAuth, subscribeLogOut} from "../redux/auth/actions";
 import {TeamCreate} from "./TeamCreate";
 
 class HomePage extends React.Component {
 	intervalAuth = null;
 
 	componentWillMount() {
-		const {onfetchAuth} = this.props;
-		onfetchAuth();
+		const {onSubscribeAuth, onSubscribeLogOut} = this.props;
+		onSubscribeAuth();
+		onSubscribeLogOut();
+	}
+
+	componentDidMount() {
+		const {onEmitAuth} = this.props;
+		onEmitAuth();
 		//this.intervalAuth = setInterval(() => onfetchAuth(), 5000);
 	}
 
@@ -34,7 +40,7 @@ class HomePage extends React.Component {
 					<Route path={'/team/change'} component={TeamCreate}/>
 					<Route path={'/team/:id'} component={Team}/>
 					<Route path={'/team'} component={ListTeams} />
-					<Route path={'/board/:id'} component={Board}/>
+					<Route path={'/board/change'} component={Board}/>
 					<Route path={'/board'} component={ListBoards}/>
 				</Switch>
 			</React.Fragment>
@@ -48,7 +54,9 @@ export default withRouter(
 			auth: state.auth.auth
 		}),
 		dispatch => ({
-			onfetchAuth: () => dispatch(fetchAuth())
+			onSubscribeAuth: () => dispatch(subscribeAuth()),
+			onSubscribeLogOut: () => dispatch(subscribeLogOut()),
+			onEmitAuth: () => dispatch(emitAuth())
 		})
 	)(HomePage)
 );

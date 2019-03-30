@@ -1,3 +1,3 @@
-exports.get = function(req, resp) {
-    resp.send(200, {auth: true});
+exports.auth = function(io, action) {
+  io.emit(action, {auth: true});
 };

@@ -2,9 +2,9 @@ import React from 'react';
 import {Icon, Segment, Sidebar, Menu} from "semantic-ui-react";
 import {withRouter} from "react-router-dom";
 import {connect} from "react-redux";
-import {logOut} from "../redux/auth/actions";
+import {emitLogOut, subscribeLogOut} from "../redux/auth/actions";
 
-const NavbarComponent = ({history, onlogOut}) => {
+const NavbarComponent = ({history, onEmitLogOut}) => {
 	return (
 		<Sidebar visible className={'page-tasks__sidebar navbar'}>
 			<Segment basic>
@@ -15,13 +15,13 @@ const NavbarComponent = ({history, onlogOut}) => {
 				<Menu.Item as={'a'} onClick={() => history.push('/profile')}>
 					<Icon name='user'/>
 					<span>Профиль</span>
-					<Icon name={`log out`} onClick={() => onlogOut()}/>
+					<Icon name={`log out`} onClick={() => onEmitLogOut()}/>
 				</Menu.Item>
 				<Menu.Item as={'a'} onClick={() => history.push('/team')}>
 					<Icon name='group'/>
 					<span>Команды</span>
 				</Menu.Item>
-				<Menu.Item as={'a'} onClick={() => history.push('/boards')}>
+				<Menu.Item as={'a'} onClick={() => history.push('/board')}>
 					<Icon name='clipboard'/>
 					<span>Доски</span>
 				</Menu.Item>
@@ -34,6 +34,6 @@ const NavbarComponent = ({history, onlogOut}) => {
 export default withRouter(connect(
 	state => ({}),
 	dispatch => ({
-		onlogOut: () => dispatch(logOut())
+		onEmitLogOut: () => dispatch(emitLogOut())
 	}),
 )(NavbarComponent));

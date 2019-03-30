@@ -10,7 +10,10 @@ const sequelize = new Sequelize(conf.database, conf.user, conf.password, {
 	dialect: conf.dialect,
  	port: "3306",
 	pool: {
-		max: conf.pool.max
+		max: conf.pool.max,
+		min: 0,
+		idle: 20000,
+		acquire: 20000
 	}
 });
 
@@ -26,9 +29,6 @@ User.hasMany(Board);
 Team.hasMany(Board);
 Board.belongsTo(User);
 Board.belongsTo(Team);
-
-// User.hasOne(Token);
-// Token.belongsTo(User);
 
 sequelize.sync()
 	.then(() => {

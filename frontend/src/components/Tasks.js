@@ -43,8 +43,6 @@ class TaskItemComponent extends Component {
 		const {task, ondeleteTask, onchangeTask} = this.props;
 		const {activeIndex, value} = this.state;
 
-		console.log(task.id, value);
-
 		return (
 			<Accordion styled>
 				<Accordion.Title>

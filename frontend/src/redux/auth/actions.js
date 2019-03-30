@@ -1,43 +1,57 @@
 import {ACTIONS} from "../constans";
-import {Xhr} from "../../helpers/Xhr";
+import {emit, on} from "../../helpers/SocketAPI";
 
-export const fetchLogin = (login, password) => dispatch => {
-	dispatch({type: ACTIONS.USER.LOGIN.RQ});
+export const subscribeLogin = () => dispatch => {
+  on('login', (data) => {
+    if (data.error) {
+      return dispatch({
+        type: ACTIONS.USER.LOGIN.FL,
+        data: data.error
+      });
+    }
+    dispatch({
+      type: ACTIONS.USER.LOGIN.SC,
+      data
+    });
+  })
+};
 
-	Xhr.login(login, password).then(resp => {
-		dispatch({
-			type: ACTIONS.USER.LOGIN.SC,
-			data: resp
-		})
-	}).catch(err => {
-		dispatch({
-			type: ACTIONS.USER.LOGIN.FL,
-			data: err.data
-		})
-	});
+export const emitLogin = (login, password) => dispatch => {
+  dispatch({type: ACTIONS.USER.LOGIN.RQ});
+  emit('login', {login, password});
+};
+
+export const subscribeAuth = () => dispatch => {
+  on('error', (error) => {
+  });
+
+  on('auth', (data) => {
+    dispatch({
+      type: ACTIONS.USER.AUTH,
+      data
+    });
+  })
+};
+
+export const emitAuth = () => dispatch => {
+  emit('auth', {test: "params"});
 };
 
 
-export const fetchAuth = () => dispatch => {
-	Xhr.auth().then(resp => {
-		dispatch({
-			type: ACTIONS.USER.AUTH,
-			data: resp
-		})
-	}).catch(err => {
-		console.log(err);
-	});
+export const subscribeLogOut = () => dispatch => {
+  on('logout', (data) => {
+    if (data.error) {
+      return;
+    }
+    dispatch({
+      type: ACTIONS.USER.LOGOUT,
+      data
+    });
+  })
 };
 
-export const logOut = () => dispatch => {
-	Xhr.logout().then(resp => {
-		dispatch({
-			type: ACTIONS.USER.LOGOUT,
-			data: resp
-		})
-	}).catch(err => {
-		console.log(err);
-	});
+export const emitLogOut = () => dispatch => {
+  emit('logout');
 };
 
 

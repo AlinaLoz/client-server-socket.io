@@ -1,24 +1,15 @@
 const jwt = require('jsonwebtoken');
 const conf = require('../config/config');
-const AuthUser = require('../models/mongo/user');
 
-module.exports = function (req, resp, next) {
-    const token = req.body.token || req.query.token || req.headers['x-access-token'];
+module.exports = function(socket, next) {
+    const [action, query] = [...socket];
 
-    if (!token)  return resp.status(403).send({auth: false, token: null});
-
-    AuthUser.findOne({token}, function (err, data) {
-        // this.disconnect();
-
-        if(err) return resp.status(500);
-        if (!data) return resp.status(401).send({auth: false, message: 'authenticate token шы цкщтп' });
-
-        jwt.verify(token, conf.token.secret, function (err, decode) {
-            //типо если просрочился
-            if (err) return resp.status(403).send({auth: false, message: 'authenticate token has expired' });
-            req.id = decode.id;
-            req.token = token;
-            next();
-        });
+    if (action.match(/(register|login)/)) return next();
+    const token = Object.keys(query).length && query.token;
+    if (!token) return next(new Error('Not a doge error'));
+    jwt.verify(token, conf.token.secret, function (err, decode) {
+        if (err)  return next(new Error('Not a doge error'));
+        if (decode.id != query.id) return next(new Error('Not a doge error'));
+        next();
     });
 };

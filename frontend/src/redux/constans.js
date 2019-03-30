@@ -1,4 +1,7 @@
 export const ACTIONS = {
+	SOCKET: {
+		SAVE: "SAVE"
+	},
 	USER: {
 		AUTH   : "AUTH",
 		LOGOUT : "LOGOUT",
@@ -73,6 +76,24 @@ export const ACTIONS = {
 			RQ: "REMOVE_MESSAGE_RQ",
 			SC: "REMOVE_MESSAGE_SC",
 			FL: "REMOVE_MESSAGE_FL"
+		}
+	},
+	BOARD: {
+		MESSAGE: "BOARD_MESSAGE",
+		GET_ALL: {
+			RQ: "BOARD_GET_RQ",
+			SC: "BOARD_GET_SC",
+			FL: "BOARD_GET_FL"
+		},
+		DROP : {
+			RQ: "BOARD_DROP_RQ",
+			SC: "BOARD_DROP_SC",
+			FL: "BOARD_DROP_FL"
+		},
+		CREATE: {
+			RQ: "BOARD_CREATE_RQ",
+			SC: "BOARD_CREATE_SC",
+			FL: "BOARD_CREATE_FL"
 		}
 	}
 };

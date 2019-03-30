@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from "react-redux";
 import {Button, Input, Grid, Message, Icon} from "semantic-ui-react";
-import {fetchLogin} from "../redux/auth/actions";
+import {emitLogin, fetchLogin, subscribeLogin} from "../redux/auth/actions";
 
 class Login extends Component {
 	state = {
@@ -15,12 +15,16 @@ class Login extends Component {
 		});
 	};
 
+	componentDidMount() {
+		const {onSubscribeLogin} = this.props;
+		onSubscribeLogin();
+	}
 
 	logIn = (e) => {
 		e.preventDefault();
 		const {login, password} = this.state;
-		const {onfetchLogin} = this.props;
-		onfetchLogin(login, password);
+		const {onEmitLogin} = this.props;
+		onEmitLogin(login, password);
 	};
 
 	componentWillReceiveProps(nextProps) {
@@ -62,6 +66,7 @@ export default connect(
 			message: state.auth.message || {}
 		}),
 		dispatch => ({
-			onfetchLogin: (login, password) => dispatch(fetchLogin(login, password))
+			onSubscribeLogin: () => dispatch(subscribeLogin()),
+			onEmitLogin: (login, password) => dispatch(emitLogin(login, password))
 		})
 )(Login);

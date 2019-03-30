@@ -1,14 +1,15 @@
 require('dotenv').config();
-const express = require("express");
-const cors = require('express-cors');
-const bodyParser = require("body-parser");
+const express = require('express');
+const http = require('http');
+const socket = require('socket.io');
+
 const app = express();
-const bearerToken = require('express-bearer-token');
+const server = http.createServer(app);
+const socketIO = socket.listen(server);
 
-app.use(cors({allowedOrigins: ['localhost:3000']}));
-app.use(bearerToken());
-app.use(bodyParser.json());
+socketIO.on('connection', (socket) => {
+  console.log('socket is working');
+  require('./routes')(socket);
+});
 
-require('./routes')(app);
-
-app.listen(process.env.SERVER_PORT);
+server.listen(8080);

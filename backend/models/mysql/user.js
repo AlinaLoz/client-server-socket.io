@@ -55,7 +55,7 @@ exports.User = (sequelize, type) => {
 						// this.disconnect();
 						if(err) return console.log(err);
 					});
-					return resolve({ auth: true, token: token, refreshToken: refreshToken});
+					return resolve({ auth: true, token: token, id: user.id, refreshToken: refreshToken});
 			});
 		});
 	};

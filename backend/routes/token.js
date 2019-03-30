@@ -19,8 +19,6 @@ exports.post = function (req, resp) {
 
             AuthUser.updateOne({refreshToken}, {token}, function (err, data) {
                 if(err) return resp.status(500);
-                console.log('token update', token);
-
                 resp.status(200).send({data: {token}});
             });
         });
